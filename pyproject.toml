@@ -24,6 +24,7 @@ pillow = "^9.5.0"
 black = "^22.10"
 pre-commit = "^2.20"
 pytest-cov = "^4.0"
+faker = "^18.10.1"
 
 [build-system]
 requires = ["poetry-core"]
