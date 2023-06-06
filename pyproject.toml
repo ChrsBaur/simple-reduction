@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "simple-reduction"
+version = "0.1.0"
+description = "Application to do reduction of PDF invoices based on coordinates."
+authors = ["Christian Baur <chrisbaur@hotmail.de>"]
+license = "Proprietary"
+packages = [
+    { include = "simple_reduction", from = "src" },
+]
+include = ["src/simple_reduction/res/*"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+PyYAML = "^6.0"
+importlib-metadata = {version = "^1.0", python = "<3.8"}
+
+[tool.poetry.dev-dependencies]
+black = "^22.10"
+pre-commit = "^2.20"
+pytest = "^7.2"
+pytest-cov = "^4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  simple-reduction:
+    image: 'at/simple-reduction:latest'
+    build:
+      context: .
+    command: ''
+    tty: true
