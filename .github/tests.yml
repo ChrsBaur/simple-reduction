@@ -1,0 +1,67 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Build Wheel Package
+        run: |
+          pip install --no-cache-dir poetry==1.4.0
+          poetry build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: app-wheel
+          path: dist/*.whl
+          if-no-files-found: error
+
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Linters
+        run: pip install flake8
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. ignore line break after binary operator (W504)
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --ignore=W504 --statistics
+  tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pip install --no-cache-dir poetry==1.4.0
+      - name: Install dependencies
+        run: poetry install --no-interaction -vvv
+      - name: pytest
+        run: |
+          poetry run pytest tests
