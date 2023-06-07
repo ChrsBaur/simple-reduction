@@ -1,10 +1,25 @@
 import os
 import argparse
 import fitz
-from .invoice import Invoice
-
+import logging
+from simple_reduction.invoice import Invoice
 
 def main(input_file, output_file):
+    """
+    Classify, redact and save an invoice from a PDF file.
+
+    Parameters:
+    input_file (str): Path to the input PDF file containing the invoice.
+    output_file (str): Path where the redacted PDF file will be saved.
+
+    Returns:
+    None
+    """
+
+    # Error handling for invalid paths
+    if not os.path.isfile(input_file):
+        raise ValueError(f"Invalid input file: {input_file}")
+
     # Define the unique identifiers for each invoice type
     invoice_identifiers = {
         "Invoice Type 1": "Unique text 1",
@@ -15,14 +30,20 @@ def main(input_file, output_file):
 
     # Define the redaction areas for each invoice type
     redaction_areas = {
-        "Invoice Type 1": [(50, 700, 200, 750), (300, 500, 450, 550)],
-        "Invoice Type 2": [(100, 600, 250, 650), (350, 400, 500, 450)],
-        "Invoice Type 3": [(150, 500, 300, 550), (400, 300, 550, 350)],
-        "Invoice Type 4": [(200, 400, 350, 450), (450, 200, 600, 250)],
+        "Invoice Type 1": [
+            {"coordinates": (10, 30, 100, 50), "label": "Address"},
+            {"coordinates": (10, 60, 100, 80), "label": "Customer Name"},
+            {"coordinates": (120, 30, 160, 50), "label": "Quantity"},
+        ],
+        # ...
     }
 
     # Open the PDF
-    doc = fitz.open(input_file)
+    try:
+        doc = fitz.open(input_file)
+    except Exception as e:
+        logging.error(f"Failed to open input file: {input_file}")
+        raise e
 
     # Create an Invoice object
     invoice = Invoice(doc)
@@ -33,15 +54,7 @@ def main(input_file, output_file):
     # Redact the invoice
     invoice.redact_invoice(redaction_areas)
 
+    # Save the redacted PDF
+    invoice.save(output_file)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Redact sensitive information from invoices"
-    )
-    parser.add_argument("input_file", type=str, help="The path to the invoice PDF")
-    parser.add_argument(
-        "output_file", type=str, help="The path to save the redacted PDF"
-    )
-    args = parser.parse_args()
-
-    main(args.input_file, args.output_file)
+# ...
